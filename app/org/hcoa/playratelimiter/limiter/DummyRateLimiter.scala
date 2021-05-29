@@ -1,6 +1,6 @@
 package org.hcoa.playratelimiter.limiter
 
-class DummyRateLimiter[A] extends RateLimiter[A] {
+trait DummyRateLimiter[A] extends RateLimiter[A] {
   override def getAvailableTokens(key: A): Option[Long] = Some(1L)
 
   override def tryConsumeWithProbe(key: A, tokens: Int): RateLimiterProbe =

@@ -3,22 +3,12 @@ package org.hcoa.playratelimiter.playfun
 import akka.stream.Materializer
 import org.hcoa.playratelimiter.PlayRateLimiter
 import org.hcoa.playratelimiter.limiter.InMemoryRateLimiter
-import org.hcoa.playratelimiter.playfun.RateLimitWithUsage.{
-  RateLimitUsage,
-  RateLimiterHeaders
-}
+import org.hcoa.playratelimiter.playfun.RateLimitWithUsage.{RateLimitUsage, RateLimiterHeaders}
 import org.hcoa.playratelimiter.util.{TestClock, TestTimeMeter}
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.mvc.Results.Ok
-import play.api.mvc.{
-  Action,
-  AnyContent,
-  AnyContentAsEmpty,
-  DefaultActionBuilder,
-  PlayBodyParsers,
-  Result
-}
+import play.api.mvc.{Action, AnyContent, AnyContentAsEmpty, DefaultActionBuilder, PlayBodyParsers, Request, Result}
 import play.api.test.{DefaultAwaitTimeout, FakeRequest, FutureAwaits}
 import play.api.test.Helpers._
 
@@ -241,6 +231,7 @@ class RateLimitActionFilterSpec
     }
 
     "custom headers appender for Result" in {
+      val testHeaderName = "TEST-CAPACITY-HEADER"
       val capacity = 10
       val testTimeMeter = new TestTimeMeter
       implicit val clock =
@@ -256,7 +247,7 @@ class RateLimitActionFilterSpec
       def customHeadersAppender(
           rateLimitUsage: RateLimitUsage
       ): RateLimiterHeaders = {
-        Seq("TEST-CAPACITY" -> rateLimitUsage.xRateLimitLimit.toString)
+        Seq(testHeaderName -> rateLimitUsage.xRateLimitLimit.toString)
       }
 
       val rateLimiterWithUsage =
@@ -271,7 +262,7 @@ class RateLimitActionFilterSpec
 
       val resp = call(action, FakeRequest(GET, "/"))
       status(resp) mustBe OK
-      await(resp).header.headers("TEST-CAPACITY") mustBe capacity.toString
+      await(resp).header.headers(testHeaderName) mustBe capacity.toString
     }
   }
 }
