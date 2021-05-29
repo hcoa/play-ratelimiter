@@ -12,8 +12,8 @@ class InMemoryRateLimiter[A](
     val capacity: Long,
     period: FiniteDuration,
     cache: Cache[A, Bucket],
-    timeMeter: TimeMeter = TimeMeter.SYSTEM_NANOTIME,
-    refill: (Long, Duration) => Refill = Refill.greedy
+    timeMeter: TimeMeter,
+    refill: (Long, Duration) => Refill
 ) extends RateLimiter[A]
     with Serializable {
 
